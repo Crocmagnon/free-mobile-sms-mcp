@@ -46,7 +46,12 @@ type Client struct {
 
 // NewHTTPClient is the HTTP client to give New outside tests.
 func NewHTTPClient() *http.Client {
-	return &http.Client{Timeout: timeout}
+	return &http.Client{
+		Timeout: timeout,
+		CheckRedirect: func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 }
 
 // New builds a client posting to endpoint, normally Endpoint.

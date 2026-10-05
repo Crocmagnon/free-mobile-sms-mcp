@@ -86,7 +86,7 @@ func TestSend_MapsTheStatusCodes(t *testing.T) {
 			t.Errorf("HTTP %d: the error leaks the key: %v", code, err)
 		}
 
-		if errors.Is(want, freemobile.ErrUnexpectedStatus) &&
+		if errors.Is(want, freemobile.ErrUnexpectedStatus) && err != nil &&
 			!strings.Contains(err.Error(), strconv.Itoa(code)) {
 			t.Errorf("HTTP %d: the error does not name the code: %v", code, err)
 		}
@@ -108,5 +108,23 @@ func TestSend_UnreachableServerDoesNotLeakTheKey(t *testing.T) {
 
 	if strings.Contains(err.Error(), testPass) {
 		t.Errorf("the error leaks the key: %v", err)
+	}
+}
+
+func TestSend_RedirectIsNotASuccess(t *testing.T) {
+	t.Parallel()
+
+	target := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+	defer target.Close()
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, target.URL, http.StatusFound)
+	}))
+	defer server.Close()
+
+	err := freemobile.New(freemobile.NewHTTPClient(), server.URL, testUser, testPass).
+		Send(t.Context(), "hi")
+	if !errors.Is(err, freemobile.ErrUnexpectedStatus) {
+		t.Errorf("Send = %v, want %v", err, freemobile.ErrUnexpectedStatus)
 	}
 }
