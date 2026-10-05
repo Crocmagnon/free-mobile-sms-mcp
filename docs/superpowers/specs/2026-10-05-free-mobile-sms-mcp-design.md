@@ -7,8 +7,8 @@ the Free Mobile "notifications par SMS" API. That API only delivers to the line 
 API key, so the recipient is always the user: there is no recipient parameter, and no way to
 text anyone else.
 
-Single user, stdio, no listener, no database, no deploy. Public repository: no internal
-library, no `stash.ovh.net` import. `master` is the release; installation is
+Single user, stdio, no listener, no database, no deploy. Public repository: no
+employer-internal library or import. `master` is the release; installation is
 `go run go.augendre.info/free-mobile-sms-mcp/cmd/free-mobile-sms-mcp@master`.
 
 ## Free Mobile API
@@ -69,7 +69,7 @@ One tool, `send_sms`, input `{message: string}`. Its description says it texts t
 running the agent on their own phone, that the message is sent untouched, and that 402
 means wait before retrying. Success returns the text `SMS sent.`; an error is returned as a
 tool error carrying the message. Exposes `Run` (stdio) and `Serve` (any transport, for tests),
-as jira-mcp does.
+as similar MCP servers do.
 
 ### cmd/free-mobile-sms-mcp
 
