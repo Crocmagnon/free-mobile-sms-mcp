@@ -3,12 +3,12 @@
 package freemobile
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
-	"strings"
 	"time"
 )
 
@@ -59,21 +59,20 @@ func New(httpClient *http.Client, endpoint, user, pass string) *Client {
 	return &Client{httpClient: httpClient, endpoint: endpoint, user: user, pass: pass}
 }
 
-// Send posts msg as a form, so the key stays out of the URL and of any error quoting it.
+// Send posts msg as a JSON body, the only POST encoding the API reads, which keeps the key
+// out of the URL and of any error quoting it.
 func (c *Client) Send(ctx context.Context, msg string) error {
-	form := url.Values{"user": {c.user}, "pass": {c.pass}, "msg": {msg}}
+	body, err := json.Marshal(map[string]string{"user": c.user, "pass": c.pass, "msg": msg})
+	if err != nil {
+		return fmt.Errorf("encoding the request: %w", err)
+	}
 
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		c.endpoint,
-		strings.NewReader(form.Encode()),
-	)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.endpoint, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("building the request: %w", err)
 	}
 
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {

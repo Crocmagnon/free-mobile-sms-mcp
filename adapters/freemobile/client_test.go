@@ -1,7 +1,9 @@
 package freemobile_test
 
 import (
+	"encoding/json"
 	"errors"
+	"maps"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -16,26 +18,21 @@ const (
 	testPass = "s3cr3t-k3y"
 )
 
-func TestSend_PostsTheFormFields(t *testing.T) {
+func TestSend_PostsTheFieldsAsJSON(t *testing.T) {
 	t.Parallel()
 
-	msg := "Déploiement OK ✅ & a=b+c\nligne 2"
+	msg := "Déploiement OK ✅ & a=b+c\nligne 2 \"quoted\""
 
-	var gotMethod, gotUser, gotPass, gotMsg, gotQuery string
+	var (
+		gotMethod, gotType, gotQuery string
+		got                          map[string]string
+	)
 
 	server := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, req *http.Request) {
-		gotMethod, gotQuery = req.Method, req.URL.RawQuery
-		if err := req.ParseForm(); err != nil {
-			t.Errorf("ParseForm: %v", err)
+		gotMethod, gotType, gotQuery = req.Method, req.Header.Get("Content-Type"), req.URL.RawQuery
+		if err := json.NewDecoder(req.Body).Decode(&got); err != nil {
+			t.Errorf("decoding the body as JSON: %v", err)
 		}
-
-		gotUser, gotPass, gotMsg = req.PostForm.Get(
-			"user",
-		), req.PostForm.Get(
-			"pass",
-		), req.PostForm.Get(
-			"msg",
-		)
 	}))
 	t.Cleanup(server.Close)
 
@@ -48,12 +45,17 @@ func TestSend_PostsTheFormFields(t *testing.T) {
 		t.Errorf("method = %s, want POST", gotMethod)
 	}
 
+	if gotType != "application/json" {
+		t.Errorf("Content-Type = %q, want application/json", gotType)
+	}
+
 	if gotQuery != "" {
 		t.Errorf("query = %q, want nothing in the URL", gotQuery)
 	}
 
-	if gotUser != testUser || gotPass != testPass || gotMsg != msg {
-		t.Errorf("form = user %q pass %q msg %q", gotUser, gotPass, gotMsg)
+	want := map[string]string{"user": testUser, "pass": testPass, "msg": msg}
+	if !maps.Equal(got, want) {
+		t.Errorf("body = %q, want %q", got, want)
 	}
 }
 

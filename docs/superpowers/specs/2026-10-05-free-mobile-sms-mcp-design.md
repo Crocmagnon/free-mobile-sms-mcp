@@ -13,7 +13,7 @@ employer-internal library or import. `main` is the release; installation is
 
 ## Free Mobile API
 
-`POST https://smsapi.free-mobile.fr/sendmsg`, form-encoded, fields `user` (login), `pass`
+`POST https://smsapi.free-mobile.fr/sendmsg`, JSON body (the API ignores a form-encoded one and answers 400), fields `user` (login), `pass`
 (API key), `msg` (message). The status code is the only result:
 
 | Status | Meaning | Error surfaced |
@@ -84,7 +84,7 @@ The key never appears in output, errors, or logs.
 
 ## Testing
 
-- `freemobile`: `httptest.Server` asserting method, form fields, and each status mapping.
+- `freemobile`: `httptest.Server` asserting method, JSON body fields, and each status mapping.
 - `sms`: a fake `Sender`; empty-message rejection, pass-through.
 - `mcp`: in-memory transport session calling `send_sms`, success and error.
 - `credentials`: temp dir; round trip, file mode, absent file, incomplete file.
