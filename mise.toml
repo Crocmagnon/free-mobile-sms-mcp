@@ -13,3 +13,18 @@ run = "golangci-lint run --fix"
 
 [tasks.build]
 run = "go build -o dist/ ./cmd/..."
+
+[tasks."mcp:dev"]
+description = "Point this project's agent at the working tree instead of master"
+run = """
+claude mcp remove free-mobile-sms -s local >/dev/null 2>&1 || true
+claude mcp add --scope local free-mobile-sms -- go run {{config_root}}/cmd/free-mobile-sms-mcp
+echo 'dev mode: restart the agent'
+"""
+
+[tasks."mcp:release"]
+description = "Go back to the master build of the server"
+run = """
+claude mcp remove free-mobile-sms -s local >/dev/null 2>&1 || echo 'already in release mode'
+echo 'release mode: restart the agent to pick up the master build'
+"""
