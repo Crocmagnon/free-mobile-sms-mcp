@@ -9,12 +9,12 @@ It uses the [Free Mobile SMS notification API](https://mobile.free.fr/account/),
 1. In the Free Mobile subscriber area (https://mobile.free.fr/account/), under Mes Options > Notifications par SMS, enable the option. It shows your login and API key.
 2. In your own terminal, run:
    ```sh
-   go run go.augendre.info/free-mobile-sms-mcp/cmd/free-mobile-sms-mcp@master login
+   go run go.augendre.info/free-mobile-sms-mcp/cmd/free-mobile-sms-mcp@main login
    ```
    It sends a test SMS, then writes `credentials.json` (mode 0600) in your user config directory (e.g. `~/.config/free-mobile-sms-mcp/credentials.json` on Linux); `login` prints the exact path. `FREE_MOBILE_SMS_MCP_CREDENTIALS` overrides the path. `login` refuses to run unless stdin is a terminal, so an agent cannot run it, and the agent never sees the key.
 3. Register the server:
    ```sh
-   claude mcp add --scope user free-mobile-sms -- go run go.augendre.info/free-mobile-sms-mcp/cmd/free-mobile-sms-mcp@master
+   claude mcp add --scope user free-mobile-sms -- go run go.augendre.info/free-mobile-sms-mcp/cmd/free-mobile-sms-mcp@main
    ```
 4. Restart the agent.
 
@@ -48,7 +48,7 @@ mise run lint
 mise run build
 ```
 
-`mise run mcp:dev` points this project's agent at the working tree, `mise run mcp:release` goes back to the master build.
+`mise run mcp:dev` points this project's agent at the working tree, `mise run mcp:release` goes back to the main build.
 
 ## Licence
 

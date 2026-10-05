@@ -8,8 +8,8 @@ API key, so the recipient is always the user: there is no recipient parameter, a
 text anyone else.
 
 Single user, stdio, no listener, no database, no deploy. Public repository: no
-employer-internal library or import. `master` is the release; installation is
-`go run go.augendre.info/free-mobile-sms-mcp/cmd/free-mobile-sms-mcp@master`.
+employer-internal library or import. `main` is the release; installation is
+`go run go.augendre.info/free-mobile-sms-mcp/cmd/free-mobile-sms-mcp@main`.
 
 ## Free Mobile API
 
@@ -96,13 +96,13 @@ Uniform with `arangolint` and `fatcontext`:
 - `mise.toml`: `CGO_ENABLED=1` (for `-race`), tools go, golangci-lint, prek; tasks `test`
   (`go test -race -v ./...`), `lint` (`golangci-lint run --fix`), `build`, plus `mcp:dev` and
   `mcp:release` toggling the local Claude Code registration between the working tree and
-  `@master`.
+  `@main`.
 - `.golangci.yml`: `default: all` minus depguard, exhaustruct, exhaustruct_v5, wsl,
   noinlineerr, gomodguard; formatters goimports, gofmt, gofumpt, golines; `issues.fix`.
 - `.pre-commit-config.yaml`: pre-commit-hooks (check-yaml, end-of-file-fixer,
   trailing-whitespace) plus local `mise run lint` and `mise run test`. Run with prek.
 - `.github/workflows/go.yml`: the same CI as those repos (test matrix stable/oldstable × 3
-  OSes, `check` job running `prek run --all-files`, coverage report), on `master`.
+  OSes, `check` job running `prek run --all-files`, coverage report), on `main`.
 - `renovate.json`: copied as-is. No goreleaser: there is nothing to release.
 
 ## Docs and licence

@@ -13,7 +13,7 @@ mise run test          # go test -race -v ./...
 mise run lint          # golangci-lint run --fix
 mise run build         # go build -o dist/ ./cmd/...
 mise run mcp:dev       # register the working tree as the agent's MCP server
-mise run mcp:release   # back to the master build
+mise run mcp:release   # back to the main build
 go test ./adapters/freemobile -run TestSend_MapsTheStatusCodes   # one test
 ```
 
