@@ -187,3 +187,38 @@ func TestEmptyPath_ReportsErrNoPath(t *testing.T) {
 		t.Errorf("Delete err = %v, want ErrNoPath", err)
 	}
 }
+
+func TestGet_DecodeErrorsDoNotEchoTheFile(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name, content, leak, mention string
+	}{
+		{"truncated JSON", `{"user":"u","pass":"SECRETKEY`, "SECRETKEY", ""},
+		{"wrong type", `{"user":"u","pass":42}`, "42", "pass"},
+		{"stray character", `{"user":"u","pass":Q}`, "Q", ""},
+	}
+
+	for _, tcase := range tests {
+		t.Run(tcase.name, func(t *testing.T) {
+			t.Parallel()
+
+			store, path := newStore(t)
+			writeFile(t, path, tcase.content)
+
+			_, err := store.Get()
+			if err == nil {
+				t.Fatal("Get succeeded on a malformed file")
+			}
+
+			msg := strings.ReplaceAll(err.Error(), path, "")
+			if strings.Contains(msg, tcase.leak) {
+				t.Errorf("the error echoes the file content: %v", err)
+			}
+
+			if !strings.Contains(msg, tcase.mention) {
+				t.Errorf("the error does not name %q: %v", tcase.mention, err)
+			}
+		})
+	}
+}
