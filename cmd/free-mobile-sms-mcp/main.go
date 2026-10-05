@@ -9,10 +9,8 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/signal"
 	"runtime/debug"
 	"strings"
-	"syscall"
 
 	"golang.org/x/term"
 
@@ -52,8 +50,7 @@ func main() {
 }
 
 func run() error {
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
+	ctx := context.Background()
 
 	cmd := "serve"
 	if len(os.Args) > 1 {
@@ -84,18 +81,17 @@ func run() error {
 	}
 }
 
+func newClient(creds credentials.Credentials) *freemobile.Client {
+	return freemobile.New(freemobile.NewHTTPClient(), freemobile.Endpoint, creds.User, creds.Pass)
+}
+
 func serve(ctx context.Context, store credentials.Store) error {
 	creds, err := store.Get()
 	if err != nil {
 		return err //nolint:wrapcheck // the store's error already says what to do
 	}
 
-	client := freemobile.New(
-		freemobile.NewHTTPClient(),
-		freemobile.Endpoint,
-		creds.User,
-		creds.Pass,
-	)
+	client := newClient(creds)
 
 	if err := mcpadapter.NewServer(sms.NewService(client), version()).Run(ctx); err != nil {
 		return fmt.Errorf("serving: %w", err)
@@ -118,12 +114,7 @@ func login(ctx context.Context, store credentials.Store) error {
 		return err
 	}
 
-	client := freemobile.New(
-		freemobile.NewHTTPClient(),
-		freemobile.Endpoint,
-		creds.User,
-		creds.Pass,
-	)
+	client := newClient(creds)
 	if err := client.Send(ctx, "free-mobile-sms-mcp: login OK"); err != nil {
 		return fmt.Errorf("checking the credentials with a test SMS: %w", err)
 	}
