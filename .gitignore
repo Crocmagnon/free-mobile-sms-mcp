@@ -1,0 +1,8 @@
+*.test
+*.out
+go.work
+go.work.sum
+.env
+.idea
+dist/
+/free-mobile-sms-mcp

@@ -1,0 +1,15 @@
+[env]
+CGO_ENABLED = 1
+
+[tools]
+golangci-lint = "2.13.2"
+prek = "latest"
+
+[tasks.test]
+run = "go test -race -v ./..."
+
+[tasks.lint]
+run = "golangci-lint run --fix"
+
+[tasks.build]
+run = "go build -o dist/ ./cmd/..."

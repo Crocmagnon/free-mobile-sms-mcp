@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        go: [stable, oldstable]
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    name: test
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: ${{ matrix.go }}
+      - uses: jdx/mise-action@v4
+      - name: Build
+        run: go build -v ./...
+      - name: Test
+        run: mise run test
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+      - uses: jdx/mise-action@v4
+      - name: pre-commit
+        run: prek run --all-files
+  coverage:
+    name: coverage
+    permissions:
+      contents: write
+    concurrency:
+      group: coverage
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: Update coverage report
+        uses: ncruces/go-coverage-report@v0
+        with:
+          report: true
+          chart: true
+          amend: true
+        if: |
+          github.event_name == 'push'
+        continue-on-error: true

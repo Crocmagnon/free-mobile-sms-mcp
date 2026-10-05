@@ -1,0 +1,25 @@
+version: "2"
+issues:
+  fix: true
+linters:
+  default: all
+  disable:
+    - depguard
+    - exhaustruct
+    - exhaustruct_v5
+    - wsl
+    - noinlineerr
+    - gomodguard
+  settings:
+    cyclop:
+      max-complexity: 20
+formatters:
+  enable:
+    - goimports
+    - gofmt
+    - gofumpt
+    - golines
+  settings:
+    goimports:
+      local-prefixes:
+        - go.augendre.info/free-mobile-sms-mcp
